@@ -4,22 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Meal;
+use Illuminate\Support\Facades\Storage;
+
 class MealController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $meal = Meal::all();
-        return ;
+        return;
     }
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validatedData =  $request->validate([
-            'name'=>'required|string|max:255',
-            'description'=>'nullable|string',
-            'image'=>'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'available_date'=>'required|date'
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'available_date' => 'required|date'
         ]);
 
-        IF($request->hasfile('image'))
-        {
+        if ($request->hasfile('image')) {
             $imagepath = $request->file('image')->store('meals', 'public');
             $validatedData['image'] = $imagepath;
         }
@@ -30,16 +34,19 @@ class MealController extends Controller
     }
 
 
-    public function create(){
-        return ;
+    public function create()
+    {
+        return;
     }
 
-    public function update($id, Request $request){
+    public function update($id, Request $request)
+    {
         $meal = Meal::findOrFail($id);
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'available_date' => 'required|date'
         ]);
@@ -53,18 +60,18 @@ class MealController extends Controller
             $validatedData['image'] = $imagePath;
         }
         $meal::update($validatedData);
-        return redirect()->back()->with('message','seccessfully updated');
+        return redirect()->back()->with('message', 'seccessfully updated');
     }
 
-    public function edite($id){
+    public function edite($id)
+    {
         $meal = Meal::findOrFail($id);
-        return ;
+        return;
     }
 
-    public function destroy($meal){
+    public function destroy($meal)
+    {
         Meal::findOrFail($meal)->delete();
         return redirect()->back()->with('message', 'seccessfully deleted');
     }
-
-
 }
