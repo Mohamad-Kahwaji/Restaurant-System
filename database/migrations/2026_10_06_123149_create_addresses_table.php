@@ -16,7 +16,10 @@ return new class extends Migration
 
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('address_line');
-            $table->string('delivery_window')->nullable(); // مثل 12:00-14:00
+            $table->string('area');
+            $table->string('street');
+            $table->string('building')->nullable();
+            $table->string('details')->nullable();
             $table->boolean('is_default')->default(false);
 
             $table->timestamps();
