@@ -28,3 +28,8 @@ require __DIR__.'/auth.php';
 Route::get('/kitchen', function () {
     return Inertia::render('Kitchen');
 });
+
+
+Route::get('/subscription', function () {
+    return Inertia::render('Customer/Subscription');
+});

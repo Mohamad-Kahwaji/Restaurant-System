@@ -1,6 +1,9 @@
 import Kitchenlayout from '@/Layouts/Kitchenlayout';
 import Kitchenticket from '@/Components/Kitchenticket';
 
+import React ,{useState} from 'react';
+import {Head} from '@inertiajs/react'
+
 const tickets = [
     {
         id: 'SUB-214',
@@ -31,9 +34,19 @@ const tickets = [
     },
 ];
 
-export default function Kitchen() {
-    const subTickets = tickets.filter((t) => t.group === 'sub');
-    const dineTickets = tickets.filter((t) => t.group === 'dine');
+export default function KitchenOrders({initialtickets = []}) {
+    const [tickets, setTickets] = useState(initialtickets);
+    const handletoggleitem = (ticketId,itemIndex)=>{
+        setTickets((prevTickets)=>
+        prevTickets.map((ticket)=>{
+            if(ticket.id !== ticketId) return ticket;
+
+            const updateItems = ticket.item.map((item,idx)=>
+            idx === itemIndex ? {
+                ...item,done: !item.done
+            }:item);
+        }))
+    }
 
     return (
         <Kitchenlayout title="الطلبات" ticketsCount={tickets.length}>
