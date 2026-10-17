@@ -33,3 +33,8 @@ Route::get('/kitchen', function () {
 Route::get('/subscription', function () {
     return Inertia::render('Customer/Subscription');
 });
+
+
+Route::get('/practice', function () {
+    return Inertia::render('experment');
+});

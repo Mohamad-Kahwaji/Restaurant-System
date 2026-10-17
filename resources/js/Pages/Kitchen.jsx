@@ -1,17 +1,15 @@
-import Kitchenlayout from '@/Layouts/Kitchenlayout';
-import Kitchenticket from '@/Components/Kitchenticket';
+import { useState } from 'react';
+import KitchenLayout from '@/Layouts/Kitchenlayout';
+import KitchenTicket from '@/Components/KitchenTicket';
 
-import React ,{useState} from 'react';
-import {Head} from '@inertiajs/react'
-
-const tickets = [
+const initialTickets = [
     {
         id: 'SUB-214',
         group: 'sub',
         context: 'ريم · استلام ٧:١٥ م',
         elapsed: '٠٦ دقائق',
         state: 'new',
-        items: [{ name: 'دجاج مشوي مع الأرز', done: false }],
+        items: [{ id: 'i1', name: 'دجاج مشوي مع الأرز', done: false }],
     },
     {
         id: 'DIN-081',
@@ -20,8 +18,8 @@ const tickets = [
         elapsed: '١٢ دقيقة',
         state: 'preparing',
         items: [
-            { name: 'برغر المطعم × ٢', done: false },
-            { name: 'سلطة الحديقة × ١', done: true },
+            { id: 'i2', name: 'برغر المطعم × ٢', done: false },
+            { id: 'i3', name: 'سلطة الحديقة × ١', done: true },
         ],
     },
     {
@@ -30,49 +28,68 @@ const tickets = [
         context: 'طاولة ٦ · #S106',
         elapsed: '١٩ دقيقة',
         state: 'ready',
-        items: [{ name: 'باستا الفطر × ٢', done: true }],
+        items: [{ id: 'i4', name: 'باستا الفطر × ٢', done: true }],
     },
 ];
 
-export default function KitchenOrders({initialtickets = []}) {
-    const [tickets, setTickets] = useState(initialtickets);
-    const handletoggleitem = (ticketId,itemIndex)=>{
-        setTickets((prevTickets)=>
-        prevTickets.map((ticket)=>{
-            if(ticket.id !== ticketId) return ticket;
+export default function Kitchen() {
+    const [tickets, setTickets] = useState(initialTickets);
 
-            const updateItems = ticket.item.map((item,idx)=>
-            idx === itemIndex ? {
-                ...item,done: !item.done
-            }:item);
-        }))
-    }
+    const toggleItem = (ticketId, itemId) => {
+        setTickets((prev) =>
+            prev.map((ticket) => {
+                if (ticket.id !== ticketId) return ticket;
+
+                return {
+                    ...ticket,
+                    state: ticket.state === 'new' ? 'preparing' : ticket.state,
+                    items: ticket.items.map((item) =>
+                        item.id === itemId ? { ...item, done: !item.done } : item,
+                    ),
+                };
+            }),
+        );
+    };
+
+    const advance = (ticketId) => {
+        setTickets((prev) =>
+            prev.map((ticket) => {
+                if (ticket.id !== ticketId) return ticket;
+                if (ticket.state === 'new') return { ...ticket, state: 'preparing' };
+                if (ticket.state === 'preparing') return { ...ticket, state: 'ready' };
+                return ticket;
+            }),
+        );
+    };
+
+    const subTickets = tickets.filter((t) => t.group === 'sub');
+    const dineTickets = tickets.filter((t) => t.group === 'dine');
 
     return (
-        <Kitchenlayout title="الطلبات" ticketsCount={tickets.length}>
-            <div className="grid gap-5 p-6 lg:grid-cols-2">
-                <section>
-                    <h2 className="text-xl font-extrabold">
-                        اشتراكات اليوم <span className="text-orange-400">/ 01</span>
-                    </h2>
-                    <div className="mt-3 space-y-3">
-                        {subTickets.map((t) => (
-                            <Kitchenticket key={t.id} ticket={t} />
-                        ))}
-                    </div>
-                </section>
+        <KitchenLayout title="الطلبات" ticketsCount={tickets.length}>
+            <section>
+                <h2>اشتراكات اليوم / 01</h2>
+                {subTickets.map((t) => (
+                    <KitchenTicket
+                        key={t.id}
+                        ticket={t}
+                        onToggleItem={toggleItem}
+                        onAdvance={advance}
+                    />
+                ))}
+            </section>
 
-                <section>
-                    <h2 className="text-xl font-extrabold">
-                        طلبات الصالة <span className="text-orange-400">/ 02</span>
-                    </h2>
-                    <div className="mt-3 space-y-3">
-                        {dineTickets.map((t) => (
-                            <Kitchenticket key={t.id} ticket={t} />
-                        ))}
-                    </div>
-                </section>
-            </div>
-        </Kitchenlayout>
+            <section>
+                <h2>طلبات الصالة / 02</h2>
+                {dineTickets.map((t) => (
+                    <KitchenTicket
+                        key={t.id}
+                        ticket={t}
+                        onToggleItem={toggleItem}
+                        onAdvance={advance}
+                    />
+                ))}
+            </section>
+        </KitchenLayout>
     );
 }
