@@ -1,18 +1,18 @@
 import {Head} from '@inertiajs/react';
 
-export default function Subscription ({tilte,children})
+export default function Subscription ({title,userName,children})
 {
     return (
         <div dir='rtl'>
-            <Head title={title}/>
+            <Head title={`subscription|${title}`}/>
 
             <main>{children}</main>
 
-            <nav>
-                <a href='#home'>home</a>
-                <a href='#days'>table</a>
-                <a href='#blance'>blance</a>
-            </nav>
+            <header>
+                <p>subscription</p>
+                <h1 >Dashboard</h1>
+                <span >wellcome {userName}</span>
+            </header>
 
         </div>
     );

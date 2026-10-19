@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MealController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -24,17 +25,32 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 Route::get('/kitchen', function () {
     return Inertia::render('Kitchen');
 });
 
 
 Route::get('/subscription', function () {
-    return Inertia::render('Customer/Subscription');
-});
+    return Inertia::render('Subscription', [
+        'subscription' => null,
+        'days'         => [],
+        'meals'        => [],
+    ]);
+})->middleware('auth');
 
 
 Route::get('/practice', function () {
     return Inertia::render('experment');
 });
+
+
+
+////coustomer
+   // Route::get('/customer/menu', fn () => Inertia::render('Customer/Menu'))->name('customer.menu');
+    Route::get('/customer/basket', fn () => Inertia::render('Customer/Basket'))->name('customer.basket');
+    Route::get('/customer/orders', fn () => Inertia::render('Customer/MyOrders'))->name('customer.my_orders');
+
+
+////Meal
+    Route::get('/customer/menu', [MealController::class, 'index'])->name('customer.menu');

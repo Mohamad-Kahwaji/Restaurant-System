@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Meal;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class MealController extends Controller
 {
     public function index()
     {
-        $meal = Meal::all();
-        return;
+        $meals = Meal::all();
+        return Inertia::render('Customer/Menu', [
+        'meals' => $meals,]);
     }
     public function store(Request $request)
     {

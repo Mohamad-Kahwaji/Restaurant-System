@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Meal;
 use App\Models\Package;
 use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class SubscriptionController extends Controller
 {
@@ -18,8 +20,34 @@ class SubscriptionController extends Controller
     {
         $user = Auth::user();
 
-        $subscriptions = Subscription::with('package')->where('user_id', $user->id)->whereIn('status', ['active', 'frozen'])->latest()->get();
-        return;
+        $subscription = Subscription::with('user_id',$user->id)
+        ->where('status','active')->first();
+
+        $dayNames  = [
+            'Mon' => 'الاثنين',
+            'Tue' => 'الثلاثاء',
+            'Wed' => 'الأربعاء',
+            'Thu' => 'الخميس',
+            'Fri' => 'الجمعة',
+            'Sat' => 'السبت',
+            'Sun' => 'الأحد',
+        ];
+
+        $days = collect(range(0,6))->map(function ($id) use ($dayNames){
+            $date = Carbon::tomorrow()->addDays($id);
+            return [
+                'data'=>$date->toDate(),
+                'label'=>$dayNames[$date->format('D')].' ' .$date->format('d'),
+            ];
+        });
+
+        $meals = Meal::whereIn('avilable_date',$days->pluk('date'))->get();
+
+        return Inertia::render('Subscription',[
+            'subscription'=>$subscription,
+            'days'=>$days,
+            'meals'=>$meals,
+        ]);
     }
 
 

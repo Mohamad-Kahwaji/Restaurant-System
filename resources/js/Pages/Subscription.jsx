@@ -1,58 +1,61 @@
-import CustomerLayout from '@/Layouts/CustomerLayout';
+import { useState } from 'react';
+import SubscriptionLayout from '@/Layouts/Subscription';
+import MealCard from '@/Components/MealCard';
 
-const user = { name: 'ريم' };
+export default function Subscription({ auth, subscription = null, days = [], meals = [] }) {
+    const [selectedDate, setSelectedDate] = useState(days[0] ? days[0].date : '');
+    const [selectedMealId, setSelectedMealId] = useState(null);
 
-const subscription = {
-    status: 'active',
-    remaining_meals: 3,
-    package: { name: 'باقة الأسبوع', meals_count: 5 },
-};
+    const dailyMeals = meals.filter((meal) => meal.available_date === selectedDate);
 
-const days = [
-    { date: '2026-10-12', label: 'الاثنين ١٢' },
-    { date: '2026-10-13', label: 'الثلاثاء ١٣' },
-    { date: '2026-10-14', label: 'الأربعاء ١٤' },
-    { date: '2026-10-15', label: 'الخميس ١٥' },
-    { date: '2026-10-16', label: 'الجمعة ١٦' },
-];
+    const selectDay = (date) => {
+        setSelectedDate(date);
+        setSelectedMealId(null);
+    };
 
-const meals = [
-    {
-        id: 1,
-        name: 'دجاج مشوي مع الأرز',
-        description: 'خضار موسمية · وجبة متوازنة',
-        available_date: '2026-10-12',
-    },
-    {
-        id: 2,
-        name: 'سلمون مع الخضار',
-        description: 'طبق طازج غني بالنكهة',
-        available_date: '2026-10-12',
-    },
-];
+    const selectMeal = (mealId) => {
+        setSelectedMealId(mealId);
+    };
 
-export default function Subscription() {
+    const confirm = () => {
+        if (!selectedMealId) return;
+        // لاحقاً منبعت الطلب للسيرفر
+    };
+
+    if (!auth?.user) {
+        return (
+            <SubscriptionLayout title="الاشتراك">
+                <p>لازم تسجّل دخول أول.</p>
+            </SubscriptionLayout>
+        );
+    }
+
+    if (!subscription) {
+        return (
+            <SubscriptionLayout title="الاشتراك" userName={auth.user.name}>
+                <p>ما عندك اشتراك نشط حالياً.</p>
+            </SubscriptionLayout>
+        );
+    }
+
     return (
-        <CustomerLayout title="الاشتراك">
-            <section id="home">
-                <h1>أهلاً {user.name}</h1>
+        <SubscriptionLayout title="اختيار الوجبات" userName={auth.user.name}>
+            <section>
                 <span>
                     {subscription.status === 'active' ? 'اشتراك نشط' : subscription.status}
                 </span>
             </section>
 
-            <section id="balance">
+            <section>
                 <p>{subscription.package.name}</p>
                 <strong>{subscription.remaining_meals}</strong> وجبات متبقية من أصل{' '}
                 {subscription.package.meals_count}
             </section>
 
-            <p>⏱ تنبيه: ينتهي اختيار وجبة اليوم عند ٨:٠٠ مساءً. أكّد موعدك قبل الإغلاق.</p>
-
-            <section id="days">
+            <section>
                 <h2>جدول الوجبات</h2>
                 {days.map((day) => (
-                    <button key={day.date} type="button">
+                    <button key={day.date} type="button" onClick={() => selectDay(day.date)}>
                         {day.label}
                     </button>
                 ))}
@@ -60,17 +63,27 @@ export default function Subscription() {
 
             <section>
                 <h2>اختر وجبة اليوم</h2>
-                {meals.map((meal) => (
-                    <div key={meal.id}>
-                        <strong>{meal.name}</strong>
-                        <p>{meal.description}</p>
-                    </div>
-                ))}
+                {dailyMeals.length === 0 ? (
+                    <p>ما في وجبات متاحة بهاليوم.</p>
+                ) : (
+                    dailyMeals.map((meal) => (
+                        <MealCard
+                            key={meal.id}
+                            meal={meal}
+                            isSelected={selectedMealId === meal.id}
+                            onSelect={selectMeal}
+                        />
+                    ))
+                )}
             </section>
 
-            <button type="button" disabled>
+            <button
+                type="button"
+                disabled={!selectedMealId || subscription.remaining_meals < 1}
+                onClick={confirm}
+            >
                 تأكيد الوجبة والموعد
             </button>
-        </CustomerLayout>
+        </SubscriptionLayout>
     );
 }
