@@ -1,4 +1,5 @@
 import {Head ,Link} from '@inertiajs/react';
+import { useCart } from '@/Context/CartContext';
 
 const links = [
     {name :'menu',route:'customer.menu'},
@@ -7,6 +8,7 @@ const links = [
 ];
 
 export default function Customerlayout({title, cartCount = 0,children}){
+    const { cartCount } = useCart();
     return (
         <div>
             <header>

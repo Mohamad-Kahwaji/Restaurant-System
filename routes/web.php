@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\MealController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -48,9 +50,41 @@ Route::get('/practice', function () {
 
 ////coustomer
    // Route::get('/customer/menu', fn () => Inertia::render('Customer/Menu'))->name('customer.menu');
-    Route::get('/customer/basket', fn () => Inertia::render('Customer/Basket'))->name('customer.basket');
-    Route::get('/customer/orders', fn () => Inertia::render('Customer/MyOrders'))->name('customer.my_orders');
+    //Route::get('/customer/basket', fn () => Inertia::render('Customer/Basket'))->name('customer.basket');
 
+
+
+    Route::get('/customer/orders', [OrderController::class, 'index'])
+    ->middleware('auth')
+    ->name('customer.my_orders');
 
 ////Meal
     Route::get('/customer/menu', [MealController::class, 'index'])->name('customer.menu');
+
+
+
+////Basket
+    Route::get('/customer/basket',function() {
+        $user = Auth::user();
+        return Inertia::render('Customer/Basket',[
+            'deliveryFee'=> config('shop.delivery_Fee',0),
+            'addresses'=>$user->addresses,
+        ]);
+    })->middleware('auth')->name('customer.basket');
+
+
+
+
+////orders
+
+    Route::post('/orders',[OrderController::class,'store'])
+    ->middleware('auth')
+    ->name('oders.store');
+
+
+    Route::get('/customer/orders', fn () => Inertia::render('Customer/MyOrders'))->name('customer.my_orders');
+
+
+    Route::post('/orders', [OrderController::class, 'store'])
+    ->middleware('auth')
+    ->name('orders.store');

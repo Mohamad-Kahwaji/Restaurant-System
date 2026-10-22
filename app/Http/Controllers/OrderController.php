@@ -8,19 +8,22 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $user = Auth::$user();
+        $user = Auth::user();
 
-        $orders = Order::with('items_meal')
+        $orders = Order::with('items.meal')
             ->where('user_id', $user->id)
             ->latest()
             ->get();
 
-        return;
+        return Inertia::render('Customer/MyOrders',[
+            'orders' =>$orders,
+        ]);
     }
 
     public function store(Request $request)

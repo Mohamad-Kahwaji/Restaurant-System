@@ -1,10 +1,10 @@
-import {creatContext, useContext,useEffect, useState} from 'react';
+import {createContext, useContext,useEffect, useState} from 'react';
 
-const CartContext = creatContext(null);
-
+const CartContext = createContext(null);
+const clearCrat = ()=>setItem([]);
 
 export function CartProvider({children}){
-    cont [items, setItems] = useState(()=> {
+    const [items, setItems] = useState(()=> {
         try {
             const saved = localStorage.getItem('cart');
             return saved ? JSON.parse(saved) : [];
@@ -16,7 +16,7 @@ export function CartProvider({children}){
     });
 
     useEffect(()=> {
-        localStorage.setItem('cart',JSON.stringify(item));
+        localStorage.setItem('cart',JSON.stringify(items));
     },[items]);
 
     const addItem = (meal)=>{
@@ -36,9 +36,32 @@ export function CartProvider({children}){
         });
     };
 
-    const cartCount = items.reduce((sum,utem )=> sum + item.quantity,0);
+
+    const increase = (id) => {
+        setItems((prev) =>
+            prev.map((item) =>
+                item.id === id
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item,
+            ),
+        );
+    };
+
+    const decrease = (id) => {
+        setItems((prev) =>
+            prev
+                .map((item) =>
+                    item.id === id
+                        ? { ...item, quantity: item.quantity - 1 }
+                        : item,
+                )
+                .filter((item) => item.quantity > 0),
+        );
+    };
+
+    const cartCount = items.reduce((sum,item )=> sum + item.quantity,0);
     return (
-        <CartContext.Provider value = {{ items,addItem, cartCount }}>
+        <CartContext.Provider value = {{ items,addItem, cartCount ,increase,decrease ,clearCrat}}>
             {children}
         </CartContext.Provider>
     );

@@ -10,11 +10,7 @@ import { createRoot } from 'react-dom/client';
     import {CartProvider} from './Context/CartContext';
 
 
-    root.render(
-        <CartProvider>
-            <App {...props}/>
-        </CartProvider>
-    )
+
 
 
 
@@ -31,6 +27,12 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(<App {...props} />);
+
+        root.render(
+        <CartProvider>
+            <App {...props}/>
+        </CartProvider>
+    )
     },
     progress: {
         color: '#4B5563',
